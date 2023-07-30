@@ -50,18 +50,26 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 // Keep track of the oscillator state
 let oscillatorStarted = false;
 
-function toggleOscillators() {
-  if (!oscillatorStarted) {
-    osc1.start();
-    osc2.start();
-    oscillatorStarted = true;
-    toggleBtn.innerHTML = StopSVG;
-    return;
-  }
+function start() {
+  osc1.start();
+  osc2.start();
+  oscillatorStarted = true;
+  toggleBtn.innerHTML = StopSVG;
+}
+
+function stop() {
   osc1.stop();
   osc2.stop();
   oscillatorStarted = false;
   toggleBtn.innerHTML = StartSVG;
+}
+
+function toggleOscillators() {
+  if (!oscillatorStarted) {
+    start();
+    return;
+  }
+  stop();
 }
 
 // Start and stop the oscillators when the user clicks the buttons
@@ -75,5 +83,8 @@ document.querySelectorAll("button").forEach((btn) => {
     const target = e.target as HTMLButtonElement;
     const id = target.id as WaveType;
     updateOscillatorFrequency(id);
+    if (!oscillatorStarted) {
+      start();
+    }
   });
 });
