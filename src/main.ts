@@ -1,60 +1,63 @@
 import "./style.css";
-
+let tone1 = 20;
+let tone2 = 10;
 // @ts-ignore
 const Tone = globalThis.Tone;
 // Create two oscillators
-let osc1 = new Tone.Oscillator(440, "sine").toDestination();
-let osc2 = new Tone.Oscillator(444, "sine").toDestination();
+let osc1 = new Tone.Oscillator(tone1, "sine").toDestination();
+let osc2 = new Tone.Oscillator(tone2, "sine").toDestination();
 
-// Start both oscillators
-function startOscillators() {
-  osc1.start();
-  osc2.start();
-}
+type WaveType = "gamma" | "beta" | "alpha" | "theta" | "delta";
+const frequency: Record<WaveType, number[]> = {
+  gamma: [30, 50],
+  beta: [14, 30],
+  alpha: [8, 14],
+  theta: [4, 8],
+  delta: [0.1, 4],
+};
 
-// Stop both oscillators
-function stopOscillators() {
-  osc1.stop();
-  osc2.stop();
+function updateOscillatorFrequency(name: WaveType) {
+  osc1.frequency.value = frequency[name][0];
+  osc2.frequency.value = frequency[name][1];
 }
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <section class="h-screen max-w-4xl mx-auto pt-20">
-    <div class="flex content-between justify-around">
-      <label>
-        <span id="left"></span>
-        <input type="range" class="-rotate-90" id="freq1" name="freq1" min="20" max="20000" value="440" step="5">
-      </label>
-      
-      <label>
-        <span id="right"></span>
-        <input type="range" class="-rotate-90" id="freq2" name="freq2" min="20" max="20000" value="444" step="5">
-      </label>
+  <section class="h-screen bg-blue-50 max-w-4xl mx-auto pt-20">
+    <div class="flex flex-col">
+      <button id="gamma">Gamma</button>
+      <button id="beta">Beta</button>
+      <button id="alpha">Alpha</button>
+      <button id="theta">Theta</button>
+      <button id="delta">Delta</button>
     </div>
-    <footer>
-      <button id="startButton">Start</button>
-      <button id="stopButton">Stop</button>
-    </footer>
+    <button id="toggleBtn" class="mx-auto">Start</button>
   </section>
 `;
-// Update the frequency of the oscillators when the user changes the input fields
-document.getElementById("freq1")!.addEventListener("change", (event) => {
-  const target = event.target as HTMLInputElement;
-  const value = target?.value;
-  osc1.frequency.value = value;
-  document.getElementById("left")!.innerHTML = value;
-});
-document.getElementById("freq2")!.addEventListener("change", (event) => {
-  const target = event.target as HTMLInputElement;
-  const value = target?.value;
-  osc2.frequency.value = value;
-  document.getElementById("right")!.innerHTML = value;
-});
+
+let oscillatorStarted = false;
+// Start both oscillators
+function toggleOscillators() {
+  if (!oscillatorStarted) {
+    osc1.start();
+    osc2.start();
+    oscillatorStarted = true;
+    toggleBtn.innerHTML = "Stop";
+    return;
+  }
+  osc1.stop();
+  osc2.stop();
+  oscillatorStarted = false;
+  toggleBtn.innerHTML = "Start";
+}
 
 // Start and stop the oscillators when the user clicks the buttons
-document
-  .getElementById("startButton")!
-  .addEventListener("click", startOscillators);
-document
-  .getElementById("stopButton")!
-  .addEventListener("click", stopOscillators);
+const toggleBtn = document.getElementById("toggleBtn")!;
+toggleBtn.addEventListener("click", toggleOscillators);
+
+document.querySelectorAll("button").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    const target = e.target as HTMLButtonElement;
+    const id = target.id as WaveType;
+    updateOscillatorFrequency(id);
+  });
+});
