@@ -20,6 +20,11 @@ const osc1 = new Tone.Oscillator(tone1, "sine").toDestination();
 const osc2 = new Tone.Oscillator(tone2, "sine").toDestination();
 
 function updateOscillatorFrequency(name: WaveType) {
+  if (name.length === 0) {
+    osc1.frequency.value = 0;
+    osc2.frequency.value = 0;
+    return;
+  }
   osc1.frequency.value = frequency[name][0];
   osc2.frequency.value = frequency[name][1];
 }
